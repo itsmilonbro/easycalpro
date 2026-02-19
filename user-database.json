@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "username": "admin",
+    "email": "admin@easycal.pro",
+    "password": "12345",
+    "role": "admin",
+    "name": "Md. Milon (Admin)",
+    "expiry": "2027-12-31",
+    "profile": { "phone": "+8801955255066", "bio": "App Founder " EasyCal" Creator & Admin" }
+  },
+  {
+    "id": 2,
+    "username": "demo",
+    "email": "demo@easycal.pro",
+    "password": "12345",
+    "role": "user",
+    "name": "Demo User",
+    "expiry": "2026-12-31",
+    "profile": { "phone": "+8801400115520", "bio": "Test account" }
+  }
+]

@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - EasyCal Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body class="bg-gray-50 dark:bg-zinc-950">
+  <div class="flex h-screen">
+    <!-- Sidebar -->
+    <div class="w-72 bg-white dark:bg-zinc-900 border-r p-6 flex flex-col">
+      <div class="flex items-center gap-3 mb-12">
+        <span class="text-4xl">🛠️</span>
+        <h1 class="text-2xl font-bold">EasyCal -Pro</h1>
+      </div>
+      <button onclick="logout()" class="mt-auto px-6 py-3 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-2xl">Logout</button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 p-10 overflow-auto">
+      <div class="flex justify-between items-center mb-10">
+        <div>
+          <h2 id="welcomeName" class="text-4xl font-bold"></h2>
+          <p class="text-emerald-600">Expires: <span id="expiryDate"></span></p>
+        </div>
+        <button onclick="toggleDarkMode()" class="text-3xl">🌙</button>
+      </div>
+
+      <!-- Profile Card -->
+      <div class="bg-white dark:bg-zinc-900 rounded-3xl p-8 mb-12 shadow">
+        <h3 class="text-2xl font-semibold mb-6">Your Profile</h3>
+        <div class="grid grid-cols-2 gap-8">
+          <div><span class="block text-sm text-zinc-500">Name</span><span id="profName" class="text-xl"></span></div>
+          <div><span class="block text-sm text-zinc-500">Email</span><span id="profEmail" class="text-xl"></span></div>
+          <div><span class="block text-sm text-zinc-500">Phone</span><span id="profPhone" class="text-xl"></span></div>
+          <div><span class="block text-sm text-zinc-500">Bio</span><span id="profBio" class="text-xl"></span></div>
+        </div>
+      </div>
+
+      <!-- Tools -->
+      <h3 class="text-2xl font-semibold mb-6">Tools</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div onclick="showTool('phone')" class="card p-8 cursor-pointer">📱 Phone Number Tool</div>
+        <div onclick="showTool('password')" class="card p-8 cursor-pointer">🔐 Password Generator</div>
+        <div onclick="showTool('calc')" class="card p-8 cursor-pointer">🧮 Basic Calculator</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tool Modals (same as index) -->
+  <!-- Paste the three modals from the big script below -->
+<!-- 
+<script>
+  // Tailwind script already in head
+  function toggleDarkMode() {
+    document.documentElement.classList.toggle('dark');
+    localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+    document.getElementById('themeToggle') && (document.getElementById('themeToggle').textContent = document.documentElement.classList.contains('dark') ? '☀️' : '🌙');
+  }
+
+  // Load / Save users
+  let users = [];
+  function loadUsers() {
+    const saved = localStorage.getItem('easycal_users');
+    if (saved) users = JSON.parse(saved);
+    else {
+      fetch('user-database.json').then(r => r.json()).then(data => {
+        users = data;
+        localStorage.setItem('easycal_users', JSON.stringify(users));
+      });
+    }
+  }
+  function saveUsers() { localStorage.setItem('easycal_users', JSON.stringify(users)); }
+
+  // Auth
+  let currentUser = null;
+  function handleLogin() {
+    const input = document.getElementById('loginUser').value.trim();
+    const pass = document.getElementById('loginPass').value;
+    const user = users.find(u => (u.username === input || u.email === input) && u.password === pass);
+    if (user) {
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      window.location = 'dashboard.html';
+    } else alert('Wrong credentials');
+  }
+
+  function handleRegister() {
+    const name = document.getElementById('regName').value;
+    const email = document.getElementById('regEmail').value;
+    const username = document.getElementById('regUser').value;
+    const password = document.getElementById('regPass').value;
+
+    if (!name || !email || !username || !password) return alert('Fill all fields');
+
+    const newUser = {
+      id: Date.now(),
+      username, email, password,
+      role: "user",
+      name,
+      expiry: "2026-12-31",
+      profile: { phone: "+8801xxxxxxxx", bio: "New user" }
+    };
+
+    users.push(newUser);
+    saveUsers();
+
+    // Send to your email
+    const body = `New Registration from EasyCal-Pro\nName: ${name}\nEmail: ${email}\nUsername: ${username}\nPassword: ${password}`;
+    window.location.href = `mailto:millonhossain1993@gmail.com?subject=New%20EasyCal-Pro%20Registration&body=${encodeURIComponent(body)}`;
+
+    alert('✅ Registration request sent to millonhossain1993@gmail.com\nYou can now login with the details after reply email or text massege to your registered phone number!');
+    document.getElementById('registerModal').classList.add('hidden');
+  }
+
+  function logout() {
+    localStorage.removeItem('currentUser');
+    window.location = 'index.html';
+  }
+
+  // Tool modals (you can expand)
+  function showTool(tool) {
+    let html = '';
+    if (tool === 'phone') {
+      html = `<div class="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-zinc-900 p-10 rounded-3xl w-96">
+          <h3 class="text-2xl mb-6">📱 Phone Number Tool</h3>
+          <input id="phoneInput" placeholder="017xxxxxxxx" class="form-control mb-4">
+          <button onclick="processPhone()" class="w-full py-4 bg-indigo-600 text-white rounded-2xl">Format & Validate</button>
+          <div id="phoneResult" class="mt-6"></div>
+        </div></div>`;
+    } else if (tool === 'password') {
+      html = `... (password generator with slider, checkboxes, copy button — full code available if you want extra)`;
+    } else if (tool === 'calc') {
+      html = `<div class="fixed inset-0 ...">Simple calculator here</div>`;
+    }
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    document.body.appendChild(div);
+  }
+
+  function processPhone() {
+    // BD phone logic (full working)
+    let num = document.getElementById('phoneInput').value.replace(/\D/g,'');
+    if (num.length === 11 && num.startsWith('01')) {
+      const formatted = '+88' + num;
+      const carrier = { '017':'Grameenphone', '018':'Robi', '019':'Banglalink', '016':'Airtel', '015':'Teletalk' }[num.slice(0,3)] || 'Unknown';
+      document.getElementById('phoneResult').innerHTML = `<p class="text-green-600 font-semibold">✅ Valid BD Number</p><p>Formatted: ${formatted}</p><p>Carrier: ${carrier}</p>`;
+    } else {
+      document.getElementById('phoneResult').innerHTML = `<p class="text-red-600">❌ Invalid Bangladeshi number</p>`;
+    }
+  }
+
+  // On every page load
+  window.onload = () => {
+    loadUsers();
+    if (document.getElementById('welcomeName')) {
+      const cu = JSON.parse(localStorage.getItem('currentUser'));
+      if (!cu) window.location = 'index.html';
+      document.getElementById('welcomeName').textContent = `Welcome, ${cu.name}`;
+      document.getElementById('expiryDate').textContent = cu.expiry;
+      // fill profile
+      document.getElementById('profName').textContent = cu.name;
+      document.getElementById('profEmail').textContent = cu.email;
+      document.getElementById('profPhone').textContent = cu.profile.phone;
+      document.getElementById('profBio').textContent = cu.profile.bio;
+    }
+    // admin table load etc.
+    if (location.pathname.includes('admin')) {
+      // admin only check + table code
+    }
+  };
+
+  // Dark mode on load
+  if (localStorage.theme === 'dark' || (!localStorage.theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.documentElement.classList.add('dark');
+  }
+</script>
+Old ver -->
+
+<script>
+// ────────────────────────────────────────────────
+//  EasyCal-Pro – Shared JavaScript (all pages)
+// ────────────────────────────────────────────────
+
+const DB_KEY         = 'easycal_users';
+const CURRENT_USER   = 'easycal_current_user';
+const THEME_KEY      = 'easycal_theme';
+
+let users        = [];
+let currentUser  = null;
+
+// ─── Theme / Dark mode ───────────────────────────────────────
+function toggleDarkMode() {
+    const isDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+
+    const btn = document.getElementById('themeToggle');
+    if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+}
+
+function initTheme() {
+    const saved = localStorage.getItem(THEME_KEY);
+    const preferDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (saved === 'dark' || (!saved && preferDark)) {
+        document.documentElement.classList.add('dark');
+        const btn = document.getElementById('themeToggle');
+        if (btn) btn.textContent = '☀️';
+    }
+}
+
+// ─── Database helpers ────────────────────────────────────────
+function loadUsers() {
+    const saved = localStorage.getItem(DB_KEY);
+    if (saved) {
+        users = JSON.parse(saved);
+        return;
+    }
+
+    // First time → fetch initial JSON
+    fetch('user-database.json')
+        .then(r => {
+            if (!r.ok) throw new Error('user-database.json not found');
+            return r.json();
+        })
+        .then(data => {
+            users = data;
+            saveUsers();
+        })
+        .catch(err => {
+            console.error(err);
+            users = [
+                {
+                    id: 1, username: "admin", password: "12345",
+                    email: "admin@easycal.pro", role: "admin",
+                    name: "Admin User", expiry: "2099-12-31",
+                    profile: { phone: "+8801955255066", bio: "App Devloper" }
+                }
+            ];
+            saveUsers();
+        });
+}
+
+function saveUsers() {
+    localStorage.setItem(DB_KEY, JSON.stringify(users));
+}
+
+// ─── Auth ────────────────────────────────────────────────────
+function getCurrentUser() {
+    const json = localStorage.getItem(CURRENT_USER);
+    return json ? JSON.parse(json) : null;
+}
+
+function setCurrentUser(user) {
+    currentUser = user;
+    if (user) {
+        localStorage.setItem(CURRENT_USER, JSON.stringify(user));
+    } else {
+        localStorage.removeItem(CURRENT_USER);
+    }
+}
+
+function logout() {
+    setCurrentUser(null);
+    window.location.href = 'index.html';
+}
+
+// ─── Modals ──────────────────────────────────────────────────
+function showModal(id) {
+    document.getElementById(id).classList.remove('hidden');
+}
+
+function hideModal(id) {
+    document.getElementById(id).classList.add('hidden');
+}
+
+function closeModal(e) {
+    if (e.target.classList.contains('fixed')) {
+        e.target.classList.add('hidden');
+    }
+}
+
+// ─── Login ───────────────────────────────────────────────────
+function handleLogin() {
+    const input = document.getElementById('loginUser')?.value.trim();
+    const pass  = document.getElementById('loginPass')?.value;
+
+    if (!input || !pass) {
+        alert('Please enter username/email and password');
+        return;
+    }
+
+    const user = users.find(u =>
+        (u.username.toLowerCase() === input.toLowerCase() ||
+         u.email.toLowerCase() === input.toLowerCase()) &&
+        u.password === pass
+    );
+
+    if (user) {
+        setCurrentUser(user);
+        window.location.href = 'dashboard.html';
+    } else {
+        alert('Incorrect username/email or password');
+    }
+}
+
+// ─── Register ────────────────────────────────────────────────
+function handleRegister() {
+    const name     = document.getElementById('regName')?.value.trim();
+    const email    = document.getElementById('regEmail')?.value.trim();
+    const username = document.getElementById('regUser')?.value.trim();
+    const password = document.getElementById('regPass')?.value;
+
+    if (!name || !email || !username || !password) {
+        alert('Please fill in all fields');
+        return;
+    }
+
+    if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+        alert('Username already taken');
+        return;
+    }
+
+    if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+        alert('Email already registered');
+        return;
+    }
+
+    const newUser = {
+        id: Date.now(),
+        username,
+        email,
+        password,           // In real app → NEVER store plain text!
+        role: 'user',
+        name,
+        expiry: new Date(Date.now() + 365*24*60*60*1000).toISOString().split('T')[0],
+        profile: {
+            phone: '',
+            bio: 'New member'
+        }
+    };
+
+    users.push(newUser);
+    saveUsers();
+
+    // Prepare email content
+    const subject = encodeURIComponent('New EasyCal-Pro Registration');
+    const body = encodeURIComponent(
+        `New user registration request:\n\n` +
+        `Name:     ${name}\n` +
+        `Email:    ${email}\n` +
+        `Username: ${username}\n` +
+        `Password: ${password}\n\n` +
+        `Please review and activate manually.`
+    );
+
+    window.location.href = `mailto:millonhossain1993@gmail.com?subject=\( {subject}&body= \){body}`;
+
+    alert('Registration request sent to easycal.app@gmail.com!\nYou may login after approval.');
+    hideModal('registerModal');
+}
+
+// ─── Dashboard profile fill ──────────────────────────────────
+function fillDashboardProfile() {
+    const cu = getCurrentUser();
+    if (!cu) {
+        window.location.href = 'index.html';
+        return;
+    }
+
+    document.getElementById('welcomeName').textContent = `Welcome, ${cu.name.split(' ')[0]}`;
+    document.getElementById('expiryDate').textContent   = cu.expiry;
+
+    document.getElementById('profName').textContent  = cu.name;
+    document.getElementById('profEmail').textContent = cu.email;
+    document.getElementById('profPhone').textContent = cu.profile.phone || '—';
+    document.getElementById('profBio').textContent   = cu.profile.bio   || '—';
+}
+
+// ─── Phone number tool ───────────────────────────────────────
+function processPhone() {
+    const input  = document.getElementById('phoneInput')?.value.trim();
+    const result = document.getElementById('phoneResult');
+
+    if (!input || !result) return;
+
+    let num = input.replace(/[^\d+]/g, '');
+    if (num.startsWith('88')) num = '+' + num;
+    if (!num.startsWith('+')) num = '+88' + num;
+
+    const bdMatch = num.match(/^\+8801[3-9]\d{8}$/);
+    if (!bdMatch) {
+        result.innerHTML = `<p class="text-red-600 font-medium">Invalid Bangladeshi mobile number</p>`;
+        return;
+    }
+
+    const prefix = num.substring(4,7); // 88017x → 017
+    const carriers = {
+        '013': 'Grameenphone',
+        '014': 'Banglalink',
+        '015': 'Teletalk',
+        '016': 'Airtel',
+        '017': 'Grameenphone',
+        '018': 'Robi',
+        '019': 'Banglalink'
+    };
+
+    const carrier = carriers[prefix] || 'Unknown operator';
+
+    result.innerHTML = `
+        <p class="text-emerald-600 font-semibold text-lg">Valid BD Mobile Number ✓</p>
+        <p class="mt-2"><strong>International:</strong> ${num}</p>
+        <p><strong>Local:</strong> 0${num.substring(4)}</p>
+        <p><strong>Operator:</strong> ${carrier}</p>
+    `;
+}
+
+// ─── Password generator ──────────────────────────────────────
+function generatePassword() {
+    const len    = parseInt(document.getElementById('passLength')?.value) || 16;
+    const upper  = document.getElementById('upper')?.checked ?? true;
+    const lower  = document.getElementById('lower')?.checked ?? true;
+    const num    = document.getElementById('num')?.checked   ?? true;
+    const sym    = document.getElementById('sym')?.checked   ?? false;
+
+    const sets = {
+        upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        lower: 'abcdefghijklmnopqrstuvwxyz',
+        num:   '0123456789',
+        sym:   '!@#$%^&*()_+-=[]{}|;:,.<>?'
+    };
+
+    let chars = '';
+    if (upper) chars += sets.upper;
+    if (lower) chars += sets.lower;
+    if (num)   chars += sets.num;
+    if (sym)   chars += sets.sym;
+
+    if (!chars) {
+        alert('Select at least one character type');
+        return;
+    }
+
+    let pw = '';
+    for (let i = 0; i < len; i++) {
+        pw += chars[Math.floor(Math.random() * chars.length)];
+    }
+
+    document.getElementById('generatedPass').value = pw;
+    updateStrength(pw);
+}
+
+function updateStrength(pw) {
+    const el = document.getElementById('strength');
+    if (!el) return;
+
+    let score = 0;
+    if (pw.length >= 8)  score++;
+    if (pw.length >= 12) score++;
+    if (/[A-Z]/.test(pw)) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[^A-Za-z0-9]/.test(pw)) score++;
+
+    const levels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong', 'Excellent'];
+    const colors = ['text-red-600', 'text-orange-500', 'text-yellow-500', 'text-lime-600', 'text-emerald-600', 'text-teal-600'];
+
+    el.textContent = levels[score] || 'Very Weak';
+    el.className = colors[score] || 'text-red-600';
+}
+
+function copyPassword() {
+    const field = document.getElementById('generatedPass');
+    if (!field?.value) return;
+
+    field.select();
+    navigator.clipboard.writeText(field.value).then(() => {
+        const btn = document.getElementById('copyBtn');
+        const orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = orig, 1800);
+    });
+}
+
+// ─── Admin ───────────────────────────────────────────────────
+function loadAdminTable() {
+    const tbody = document.getElementById('userTable');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+
+    users.forEach(user => {
+        const tr = document.createElement('tr');
+        tr.className = 'border-b border-zinc-800 hover:bg-zinc-800/50';
+        tr.innerHTML = `
+            <td class="p-5">${user.username}</td>
+            <td class="p-5">${user.email}</td>
+            <td class="p-5">${user.role}</td>
+            <td class="p-5">${user.expiry}</td>
+            <td class="p-5">
+                <button onclick="openEditUser(${user.id})" class="text-indigo-400 hover:text-indigo-300 mr-3">Edit</button>
+                <button onclick="deleteUser(${user.id})" class="text-red-400 hover:text-red-300">Delete</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function openEditUser(id) {
+    const user = users.find(u => u.id === id);
+    if (!user) return;
+
+    // You can create a modal dynamically or use an existing one
+    alert(`Edit user:\n${JSON.stringify(user, null, 2)}\n\n(Implement full modal here)`);
+
+    // Example: you could open a modal and fill fields
+    // For brevity we just show alert in this version
+}
+
+function deleteUser(id) {
+    if (!confirm('Delete this user permanently?')) return;
+
+    users = users.filter(u => u.id !== id);
+    saveUsers();
+    loadAdminTable();
+}
+
+// ─── Tool launcher (placeholder) ─────────────────────────────
+function openTool(name) {
+    // You can create real modals or separate pages later
+    if (name === 'phone') {
+        alert('Phone tool opened\n(Implement modal / section here)');
+    } else if (name === 'password') {
+        alert('Password generator opened');
+    } else {
+        alert(`${name} tool – coming soon`);
+    }
+}
+
+// ─── Init on every page ──────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+    initTheme();
+    loadUsers();
+
+    currentUser = getCurrentUser();
+
+    // Protect dashboard & admin
+    if (window.location.pathname.includes('dashboard') ||
+        window.location.pathname.includes('admin')) {
+        if (!currentUser) {
+            window.location.href = 'index.html';
+        }
+    }
+
+    // Dashboard specific
+    if (document.getElementById('welcomeName')) {
+        fillDashboardProfile();
+    }
+
+    // Admin specific
+    if (document.getElementById('userTable')) {
+        if (currentUser?.role !== 'admin') {
+            alert('Access denied');
+            window.location.href = 'dashboard.html';
+        }
+        loadAdminTable();
+    }
+
+    // Attach global close on backdrop click
+    document.querySelectorAll('.fixed.inset-0').forEach(modal => {
+        modal.addEventListener('click', closeModal);
+    });
+});
+</script>
+</body>
+</html>
