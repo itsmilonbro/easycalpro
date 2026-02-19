@@ -93,15 +93,15 @@
   // ────────────────────────────────────────────────
   //  EasyCal-Pro –JS/Console Error Checker
   // ────────────────────────────────────────────────
-
-window.onerror = function(message, source, lineno, colno, error) {
-    alert("JavaScript Error!\n\n" + 
-          "Message: " + message + "\n" +
-          "Line: " + lineno + "\n" +
-          "File: " + (source || "inline script") + "\n\n" +
-          (error ? error.stack : ""));
-    return false; // let default handler also run (logs to console if available)
+window.onerror = function(msg, url, line, col, err) {
+    alert(
+        "JavaScript problem found!\n\n" +
+        "Message: " + msg + "\n" +
+        "Line number: " + line + "\n" +
+        "More info: " + (err ? err.stack : "no stack")
+    );
 };
+
   // ────────────────────────────────────────────────
 
 
