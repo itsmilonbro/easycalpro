@@ -136,55 +136,49 @@ window.onerror = function(msg, url, line, col, err) {
   }
 
   // ─── Database ───────────────────────────────────────────────
+function saveUsers() {
+    if (users && Array.isArray(users)) {
+        localStorage.setItem(DB_KEY, JSON.stringify(users));
+        // Optional: console.log("Users saved to localStorage");
+    }
+}
+
+
  
 // ─── Database load with better debug ────────────────────────────────
-function loadUsers() {
-    const saved = localStorage.getItem(DB_KEY);
-    if (saved) {
-        try {
-            users = JSON.parse(saved);
-            if (Array.isArray(users) && users.length > 0) {
-                alert("Users loaded from localStorage (" + users.length + " users)");
-                return;
-            }
-        } catch (e) {
-            console.error("localStorage parse error:", e);
-        }
-    }
 
-    // Fetch from file - use relative path (works on GitHub Pages root)
-    fetch('./user-database.json')
+function loadUsers() {
+    // Try to load from file – this is the source of truth
+    fetch('./user-database.json', { cache: 'no-store' })  // ← no cache to always get fresh file
         .then(r => {
-            if (!r.ok) {
-                throw new Error("Fetch failed: " + r.status + " " + r.statusText);
-            }
+            if (!r.ok) throw new Error(`Fetch failed: ${r.status} ${r.statusText}`);
             return r.json();
         })
         .then(data => {
-            if (!Array.isArray(data)) {
-                throw new Error("JSON is not an array");
-            }
+            if (!Array.isArray(data)) throw new Error("JSON is not an array");
             users = data;
-            saveUsers();
-            alert("Successfully loaded " + users.length + " users from user-database.json");
+            localStorage.setItem(DB_KEY, JSON.stringify(users)); // sync to storage
+            alert(`Loaded ${users.length} users from user-database.json (source of truth)`);
         })
         .catch(err => {
-            console.error("Load users error:", err);
-            alert("Failed to load user-database.json!\nError: " + err.message + "\n\nUsing fallback admin only.");
+            console.error("JSON load error:", err);
+            alert(`Failed to load user-database.json\nError: ${err.message}\n\nUsing fallback (only admin)`);
 
+            // Minimal fallback – only admin
             users = [{
                 id: 1,
                 username: "admin",
-                password: "12345",
                 email: "admin@easycal.pro",
+                password: "12345",
                 role: "admin",
                 name: "Md. Milon (Admin)",
                 expiry: "2099-12-31",
                 profile: { phone: "+8801955255066", bio: "App Founder" }
             }];
-            saveUsers();
+            localStorage.setItem(DB_KEY, JSON.stringify(users));
         });
 }
+
 
 // ─── Safe login handler ─────────────────────────────────────────────
 function handleLogin() {
@@ -276,56 +270,64 @@ function handleLogin() {
  
 
 // ─── Register logic ─────────────────────────────────────────
+
 function handleRegister() {
-    const name     = document.getElementById('regName')?.value?.trim();
-    const email    = document.getElementById('regEmail')?.value?.trim();
-    const username = document.getElementById('regUser')?.value?.trim();
-    const password = document.getElementById('regPass')?.value;
+    const nameEl    = document.getElementById('regName');
+    const emailEl   = document.getElementById('regEmail');
+    const userEl    = document.getElementById('regUser');
+    const passEl    = document.getElementById('regPass');
+
+    if (!nameEl || !emailEl || !userEl || !passEl) {
+        alert("Register fields missing in HTML – check IDs");
+        return;
+    }
+
+    const name     = (nameEl.value || '').trim();
+    const email    = (emailEl.value || '').trim();
+    const username = (userEl.value || '').trim();
+    const password = (passEl.value || '').trim();
 
     if (!name || !email || !username || !password) {
         alert('Please fill all fields');
         return;
     }
 
-    if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
-        alert('Username already taken');
+    // Optional: basic client-side check (you can remove)
+    if (username.length < 4) {
+        alert('Username must be at least 4 characters');
         return;
     }
 
-    if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
-        alert('Email already used');
-        return;
-    }
-
-    const newUser = {
-        id: Date.now(),
-        username,
-        email,
-        password,           // ← only for demo – never do this in real apps
-        role: 'user',
-        name,
-        expiry: new Date(Date.now() + 365*24*60*60*1000).toISOString().split('T')[0],
-        profile: { phone: '', bio: 'New member' }
-    };
-
-    users.push(newUser);
-    saveUsers();
-
+    // Prepare email – NO saving to users/localStorage
     const subject = encodeURIComponent('New EasyCal-Pro Registration Request');
     const body = encodeURIComponent(
-        `New user wants to join:\n\n` +
+        `New registration request:\n\n` +
         `Name:     ${name}\n` +
         `Email:    ${email}\n` +
         `Username: ${username}\n` +
         `Password: ${password}\n\n` +
-        `Declaration: I'm ${name} and I accept all terms & conditions. All info is correct.`
+        `Declaration: I, ${name}, accept all terms & conditions. All info is correct.`
     );
 
-    // This is the corrected, safe mailto line
-    window.location.href = `mailto:millonhossain1993@gmail.com?subject=\( {subject}&body= \){body}`;
+    const mailtoLink = `mailto:millonhossain1993@gmail.com?subject=\( {subject}&body= \){body}`;
 
-    alert('Request sent to your email client!\nLogin possible after you approve it. We wll reply after review your information and Active your Account will notified to your registered email, phone number or WhatsApp.');
+    // Open email client
+    window.location.href = mailtoLink;
+
+    alert(
+        'Email composer opened!\n' +
+        'Please press Send in your email app.\n' +
+        'Your account will be activated manually after review.\n' +
+        'No automatic registration happened.'
+    );
+
     hideModal('registerModal');
+
+    // Clear form fields (optional nice touch)
+    nameEl.value = '';
+    emailEl.value = '';
+    userEl.value = '';
+    passEl.value = '';
 }
 
 
