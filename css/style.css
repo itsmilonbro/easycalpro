@@ -1,0 +1,5 @@
+/* Your original CSS + dark mode */
+body { font-family: system-ui, sans-serif; }
+.card { background: white; border-radius: 1.5rem; box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.1); }
+.dark .card { background: #18181b; }
+.form-control { @apply w-full px-5 py-4 rounded-2xl border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:border-indigo-500; }
