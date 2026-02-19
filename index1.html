@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🛠️ EasyCal -Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#4f46e5">
+
+<body class="bg-gray-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 min-h-screen">
+
+  <div class="max-w-5xl mx-auto p-6">
+    <!-- Header -->
+    <header class="flex justify-between items-center py-6">
+      <div class="flex items-center gap-3">
+        <span class="text-4xl">🛠️</span>
+        <h1 class="text-3xl font-bold">EasyCal -Pro</h1>
+      </div>
+      <button onclick="toggleDarkMode()" id="themeToggle" 
+              class="px-4 py-2 rounded-xl bg-white dark:bg-zinc-800 shadow text-xl">🌙</button>
+    </header>
+
+    <div class="grid md:grid-cols-2 gap-12 items-center">
+      <!-- Left: Hero -->
+      <div>
+        <h2 class="text-5xl font-bold leading-tight mb-6">
+          All your daily tools<br>in one beautiful app
+        </h2>
+        <p class="text-xl text-zinc-600 dark:text-zinc-400 mb-8">
+          Phone formatter • Password generator • Calculator • and more
+        </p>
+        <div class="flex gap-4">
+          <button onclick="showLoginModal()" 
+                  class="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-lg font-semibold">Login</button>
+          <button onclick="showRegisterModal()" 
+                  class="px-8 py-4 border-2 border-indigo-600 text-indigo-600 dark:text-white hover:bg-indigo-50 dark:hover:bg-zinc-800 rounded-2xl text-lg font-semibold">Create Free Account</button>
+        </div>
+      </div>
+
+      <!-- Right: Feature Cards -->
+      <div class="grid grid-cols-2 gap-6">
+        <div onclick="showTool('phone')" class="card bg-white dark:bg-zinc-900 p-8 rounded-3xl cursor-pointer hover:scale-105 transition">
+          <div class="text-5xl mb-4">📱</div>
+          <h3 class="text-2xl font-semibold mb-2">Phone Number Tool</h3>
+          <p class="text-zinc-500 dark:text-zinc-400">Format, validate & carrier info (BD)</p>
+        </div>
+        <div onclick="showTool('password')" class="card bg-white dark:bg-zinc-900 p-8 rounded-3xl cursor-pointer hover:scale-105 transition">
+          <div class="text-5xl mb-4">🔐</div>
+          <h3 class="text-2xl font-semibold mb-2">Password Generator</h3>
+          <p class="text-zinc-500 dark:text-zinc-400">Strong passwords + strength meter</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Login Modal ─────────────────────────────────────────────── -->
+  <div id="loginModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl p-10 w-full max-w-md relative">
+      <button onclick="hideModal('loginModal')" class="absolute top-4 right-5 text-2xl">&times;</button>
+      <h3 class="text-3xl font-bold mb-8 text-center">Welcome back</h3>
+      <input id="loginUser" placeholder="Username or Email" class="form-control mb-4 w-full">
+      <input id="loginPass" type="password" placeholder="Password" class="form-control mb-6 w-full">
+      <button onclick="handleLogin()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-semibold text-lg">Login</button>
+      <p class="text-center mt-6 text-sm">
+        No account? 
+        <span onclick="switchToRegister()" class="text-indigo-600 cursor-pointer hover:underline">Create one</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ─── Register Modal ──────────────────────────────────────────── -->
+  <div id="registerModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl p-10 w-full max-w-md relative">
+      <button onclick="hideModal('registerModal')" class="absolute top-4 right-5 text-2xl">&times;</button>
+      <h3 class="text-3xl font-bold mb-8 text-center">Create New Account</h3>
+      <div class="space-y-4">
+        <input id="regName"    placeholder="Full Name"          class="form-control w-full">
+        <input id="regEmail"   type="email" placeholder="Email" class="form-control w-full">
+        <input id="regUser"    placeholder="Username"           class="form-control w-full">
+        <input id="regPass"    type="password" placeholder="Password" class="form-control w-full">
+      </div>
+      <button onclick="handleRegister()" class="mt-8 w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-semibold text-lg">
+        Create Account & Send Request
+      </button>
+    </div>
+  </div>
+
+  <!-- ─── JavaScript ──────────────────────────────────────────────── -->
+  <script>
+  // ────────────────────────────────────────────────
+  //  EasyCal-Pro – Fixed & working version
+  // ────────────────────────────────────────────────
+
+  const DB_KEY         = 'easycal_users';
+  const CURRENT_USER   = 'easycal_current_user';
+  const THEME_KEY      = 'easycal_theme';
+
+  let users = [];
+  let currentUser = null;
+
+  // ─── Theme ───────────────────────────────────────────────
+  function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+      const btn = document.getElementById('themeToggle');
+      if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+  }
+
+  function initTheme() {
+      const saved = localStorage.getItem(THEME_KEY);
+      const preferDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (saved === 'dark' || (!saved && preferDark)) {
+          document.documentElement.classList.add('dark');
+          const btn = document.getElementById('themeToggle');
+          if (btn) btn.textContent = '☀️';
+      }
+  }
+
+  // ─── Database ───────────────────────────────────────────────
+  function loadUsers() {
+      const saved = localStorage.getItem(DB_KEY);
+      if (saved) {
+          users = JSON.parse(saved);
+          return;
+      }
+
+      fetch('./user-database.json')
+          .then(r => {
+              if (!r.ok) throw new Error('No json file');
+              return r.json();
+          })
+          .then(data => {
+              users = data;
+              localStorage.setItem(DB_KEY, JSON.stringify(users));
+          })
+          .catch(() => {
+              users = [{
+                  id: 1,
+                  username: "admin",
+                  password: "12345",
+                  email: "admin@easycal.pro",
+                  role: "admin",
+                  name: "Admin User",
+                  expiry: "2099-12-31",
+                  profile: { phone: "+8801955255066", bio: "App Developer" }
+              }];
+              localStorage.setItem(DB_KEY, JSON.stringify(users));
+          });
+  }
+
+  function saveUsers() {
+      localStorage.setItem(DB_KEY, JSON.stringify(users));
+  }
+
+  // ─── Auth helpers ───────────────────────────────────────────
+  function getCurrentUser() {
+      const json = localStorage.getItem(CURRENT_USER);
+      return json ? JSON.parse(json) : null;
+  }
+
+  function setCurrentUser(user) {
+      currentUser = user;
+      if (user) {
+          localStorage.setItem(CURRENT_USER, JSON.stringify(user));
+      } else {
+          localStorage.removeItem(CURRENT_USER);
+      }
+  }
+
+  // ─── Modal helpers ──────────────────────────────────────────
+  function showModal(id) {
+      document.getElementById(id)?.classList.remove('hidden');
+  }
+
+  function hideModal(id) {
+      document.getElementById(id)?.classList.add('hidden');
+  }
+
+  // ─── Login / Register UI functions ──────────────────────────
+  function showLoginModal() {
+      hideModal('registerModal');
+      showModal('loginModal');
+  }
+
+  function showRegisterModal() {
+      hideModal('loginModal');
+      showModal('registerModal');
+  }
+
+  function switchToRegister() {
+      hideModal('loginModal');
+      showModal('registerModal');
+  }
+
+  // ─── Login logic ────────────────────────────────────────────
+  function handleLogin() {
+      const input = document.getElementById('loginUser')?.value?.trim();
+      const pass  = document.getElementById('loginPass')?.value;
+
+      if (!input || !pass) {
+          alert('Enter username/email and password');
+          return;
+      }
+
+      const user = users.find(u =>
+          (u.username.toLowerCase() === input.toLowerCase() ||
+           u.email.toLowerCase() === input.toLowerCase()) &&
+          u.password === pass
+      );
+
+      if (user) {
+          setCurrentUser(user);
+          window.location.href = 'dashboard.html';
+      } else {
+          alert('Wrong username/email or password');
+      }
+  }
+
+  // ─── Register logic ─────────────────────────────────────────
+  function handleRegister() {
+      const name     = document.getElementById('regName')?.value?.trim();
+      const email    = document.getElementById('regEmail')?.value?.trim();
+      const username = document.getElementById('regUser')?.value?.trim();
+      const password = document.getElementById('regPass')?.value;
+
+      if (!name || !email || !username || !password) {
+          alert('Please fill all fields');
+          return;
+      }
+
+      if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+          alert('Username already taken');
+          return;
+      }
+
+      if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+          alert('Email already used');
+          return;
+      }
+
+      const newUser = {
+          id: Date.now(),
+          username,
+          email,
+          password,           // ← plain text (only for demo!)
+          role: 'user',
+          name,
+          expiry: new Date(Date.now() + 365*24*60*60*1000).toISOString().split('T')[0],
+          profile: { phone: '', bio: 'New member' }
+      };
+
+      users.push(newUser);
+      saveUsers();
+
+      // Fixed mailto link
+      const subject = encodeURIComponent('New EasyCal-Pro User Registration');
+      const body = encodeURIComponent(
+          `New registration request:\n\n` +
+          `Name:     ${name}\n` +
+          `Email:    ${email}\n` +
+          `Username: ${username}\n` +
+          `Password: ${password}\n\n` +
+          `Please review my information & activate my user account & i'm ${name} declared that, i accept all terms to use this webapp and all of my provided information are correct by own guarantee. `
+      );
+
+      window.location.href = `mailto:millonhossain1993@gmail.com?subject=\( {subject}&body= \){body}`;
+
+      alert('Request sent to your email client!\nLogin possible after you approve it. We'll reply after review your information and Active your Account will notified to your registered email, phone number or WhatsApp.');
+      hideModal('registerModal');
+  }
+
+  // ─── Placeholder tool launcher ──────────────────────────────
+  function showTool(name) {
+      alert(`Tool "${name}" clicked\n(Implementation coming soon)`);
+  }
+
+  // ─── Page init ──────────────────────────────────────────────
+  window.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      loadUsers();
+
+      // Close modals when clicking outside
+      document.querySelectorAll('.fixed.inset-0').forEach(el => {
+          el.addEventListener('click', e => {
+              if (e.target === el) hideModal(el.id);
+          });
+      });
+  });
+  </script>
+</body>
+</html>
