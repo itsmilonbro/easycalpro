@@ -136,40 +136,49 @@ window.onerror = function(msg, url, line, col, err) {
   }
 
   // ─── Database ───────────────────────────────────────────────
-  function loadUsers() {
-      const saved = localStorage.getItem(DB_KEY);
-      if (saved) {
-          users = JSON.parse(saved);
-          return;
-      }
+ 
+function loadUsers() {
+    const saved = localStorage.getItem(DB_KEY);
+    if (saved) {
+        users = JSON.parse(saved);
+        console.log("Users loaded from localStorage:", users.length, "users");
+        return;
+    }
 
-      fetch('user-database.json')
-          .then(r => {
-              if (!r.ok) throw new Error('No json file');
-              return r.json();
-          })
-          .then(data => {
-              users = data;
-              localStorage.setItem(DB_KEY, JSON.stringify(users));
-          })
-          .catch(() => {
-              users = [{
-                  id: 1,
-                  username: "admin",
-                  password: "12345",
-                  email: "admin@easycal.pro",
-                  role: "admin",
-                  name: "Admin User",
-                  expiry: "2099-12-31",
-                  profile: { phone: "+8801955255066", bio: "App Developer" }
-              }];
-              localStorage.setItem(DB_KEY, JSON.stringify(users));
-          });
-  }
+    // Try to load from file – use FULL path for GitHub Pages safety
+    fetch('./user-database.json')   // or try '/easycalpro/user-database.json' if not working
+        .then(r => {
+            if (!r.ok) {
+                throw new Error(`HTTP error! Status: ${r.status} - ${r.statusText}`);
+            }
+            return r.json();
+        })
+        .then(data => {
+            users = Array.isArray(data) ? data : [];
+            saveUsers();
+            console.log("Loaded from JSON file:", users.length, "users");
+            alert("Database loaded successfully from file! (" + users.length + " users found)");
+        })
+        .catch(err => {
+            console.error("Failed to load user-database.json:", err);
+            alert("Cannot load user-database.json!\nError: " + err.message + "\n\nUsing fallback users only.");
 
-  function saveUsers() {
-      localStorage.setItem(DB_KEY, JSON.stringify(users));
-  }
+            // Fallback (keep your admin)
+            users = [{
+                id: 1,
+                username: "admin",
+                password: "12345",
+                email: "admin@easycal.pro",
+                role: "admin",
+                name: "Md. Milon (Admin)",
+                expiry: "2099-12-31",
+                profile: { phone: "+8801955255066", bio: "App Founder" }
+            }];
+            saveUsers();
+        });
+}
+
+
 
   // ─── Auth helpers ───────────────────────────────────────────
   function getCurrentUser() {
