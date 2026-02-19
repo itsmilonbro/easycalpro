@@ -137,33 +137,41 @@ window.onerror = function(msg, url, line, col, err) {
 
   // ─── Database ───────────────────────────────────────────────
  
+// ─── Database load with better debug ────────────────────────────────
 function loadUsers() {
     const saved = localStorage.getItem(DB_KEY);
     if (saved) {
-        users = JSON.parse(saved);
-        console.log("Users loaded from localStorage:", users.length, "users");
-        return;
+        try {
+            users = JSON.parse(saved);
+            if (Array.isArray(users) && users.length > 0) {
+                alert("Users loaded from localStorage (" + users.length + " users)");
+                return;
+            }
+        } catch (e) {
+            console.error("localStorage parse error:", e);
+        }
     }
 
-    // Try to load from file – use FULL path for GitHub Pages safety
-    fetch('./user-database.json')   // or try '/easycalpro/user-database.json' if not working
+    // Fetch from file - use relative path (works on GitHub Pages root)
+    fetch('./user-database.json')
         .then(r => {
             if (!r.ok) {
-                throw new Error(`HTTP error! Status: ${r.status} - ${r.statusText}`);
+                throw new Error("Fetch failed: " + r.status + " " + r.statusText);
             }
             return r.json();
         })
         .then(data => {
-            users = Array.isArray(data) ? data : [];
+            if (!Array.isArray(data)) {
+                throw new Error("JSON is not an array");
+            }
+            users = data;
             saveUsers();
-            console.log("Loaded from JSON file:", users.length, "users");
-            alert("Database loaded successfully from file! (" + users.length + " users found)");
+            alert("Successfully loaded " + users.length + " users from user-database.json");
         })
         .catch(err => {
-            console.error("Failed to load user-database.json:", err);
-            alert("Cannot load user-database.json!\nError: " + err.message + "\n\nUsing fallback users only.");
+            console.error("Load users error:", err);
+            alert("Failed to load user-database.json!\nError: " + err.message + "\n\nUsing fallback admin only.");
 
-            // Fallback (keep your admin)
             users = [{
                 id: 1,
                 username: "admin",
@@ -177,6 +185,50 @@ function loadUsers() {
             saveUsers();
         });
 }
+
+// ─── Safe login handler ─────────────────────────────────────────────
+function handleLogin() {
+    const userEl = document.getElementById('loginUser');
+    const passEl = document.getElementById('loginPass');
+
+    if (!userEl || !passEl) {
+        alert("Login input fields not found in HTML! Check IDs: loginUser & loginPass");
+        return;
+    }
+
+    const inputRaw = userEl.value;
+    const passRaw  = passEl.value;
+
+    const input = typeof inputRaw === 'string' ? inputRaw.trim() : '';
+    const pass  = typeof passRaw  === 'string' ? passRaw.trim()  : '';
+
+    if (!input || !pass) {
+        alert("Please enter username/email and password");
+        return;
+    }
+
+    // Debug: show what we're searching for
+    console.log("Trying to login with:", input);
+
+    const user = users.find(u => {
+        if (!u || typeof u.username !== 'string' || typeof u.email !== 'string') {
+            return false; // skip invalid user objects
+        }
+        return (
+            u.username.toLowerCase() === input.toLowerCase() ||
+            u.email.toLowerCase() === input.toLowerCase()
+        ) && u.password === pass;
+    });
+
+    if (user) {
+        setCurrentUser(user);
+        alert("Login successful! Redirecting...");
+        window.location.href = 'dashboard.html';
+    } else {
+        alert("Login failed.\nWrong username/email or password.\n\nAvailable test: admin / 12345");
+    }
+}
+
 
 
 
@@ -221,28 +273,7 @@ function loadUsers() {
   }
 
   // ─── Login logic ────────────────────────────────────────────
-  function handleLogin() {
-      const input = document.getElementById('loginUser')?.value?.trim();
-      const pass  = document.getElementById('loginPass')?.value;
-
-      if (!input || !pass) {
-          alert('Enter username/email and password');
-          return;
-      }
-
-      const user = users.find(u =>
-          (u.username.toLowerCase() === input.toLowerCase() ||
-           u.email.toLowerCase() === input.toLowerCase()) &&
-          u.password === pass
-      );
-
-      if (user) {
-          setCurrentUser(user);
-          window.location.href = 'dashboard.html';
-      } else {
-          alert('Wrong username/email or password');
-      }
-  }
+ 
 
 // ─── Register logic ─────────────────────────────────────────
 function handleRegister() {
