@@ -1,0 +1,343 @@
+/* Responsive Design for EasyCal */
+
+/* Extra small devices (phones, less than 576px) */
+@media (max-width: 575.98px) {
+    /* Auth Page */
+    .auth-container {
+        padding: 10px;
+    }
+    
+    .auth-card {
+        padding: 20px 15px;
+    }
+    
+    .auth-header .logo h1 {
+        font-size: 24px;
+    }
+    
+    /* Dashboard */
+    .dashboard-header {
+        padding: 0 10px;
+        height: 50px;
+    }
+    
+    .logo h1 {
+        font-size: 18px;
+    }
+    
+    .menu-toggle {
+        padding: 6px;
+    }
+    
+    .header-right {
+        gap: 8px;
+    }
+    
+    .notification-btn,
+    .theme-toggle {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .user-name {
+        display: none;
+    }
+    
+    .user-btn {
+        padding: 5px;
+    }
+    
+    .dashboard-sidebar {
+        width: 100%;
+    }
+    
+    .dashboard-content {
+        margin-left: 0 !important;
+    }
+    
+    .breadcrumb,
+    .content-container,
+    .dashboard-footer {
+        padding: 12px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .table-container {
+        overflow-x: auto;
+    }
+    
+    .users-table {
+        min-width: 800px;
+    }
+    
+    .table-footer {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .bulk-actions {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .footer-content {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    /* Modal */
+    .modal {
+        margin: 10px;
+    }
+    
+    .modal-header h3 {
+        font-size: 16px;
+    }
+    
+    .user-modal-tabs {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+    }
+    
+    .tab-btn {
+        white-space: nowrap;
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .dashboard-sidebar {
+        width: 200px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .form-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .table-footer {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .dashboard-sidebar {
+        width: 220px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .form-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    .dashboard-sidebar {
+        width: 240px;
+    }
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+    .dashboard-sidebar {
+        width: 250px;
+    }
+}
+
+/* High-DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    /* Add high-DPI specific styles if needed */
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Increase touch target sizes */
+    .btn, 
+    .btn-icon,
+    .nav-links a,
+    .notification-btn,
+    .user-btn,
+    .menu-toggle,
+    .theme-toggle {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    .checkbox {
+        min-height: 44px;
+    }
+    
+    input[type="checkbox"],
+    input[type="radio"] {
+        transform: scale(1.5);
+        margin-right: 10px;
+    }
+    
+    /* Remove hover effects */
+    .btn:hover,
+    .btn-icon:hover,
+    .nav-links a:hover {
+        transform: none !important;
+    }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Dark mode preference */
+@media (prefers-color-scheme: dark) {
+    /* If user prefers dark mode but hasn't selected it yet */
+    body:not(.dark-mode):not(.light-mode) {
+        background: #111827;
+        color: #F9FAFB;
+    }
+    
+    body:not(.dark-mode):not(.light-mode) .auth-card {
+        background: #1F2937;
+        color: #F9FAFB;
+    }
+    
+    body:not(.dark-mode):not(.light-mode) .auth-card h2,
+    body:not(.dark-mode):not(.light-mode) .form-group label {
+        color: #F9FAFB;
+    }
+    
+    body:not(.dark-mode):not(.light-mode) .form-group input {
+        background: #374151;
+        border-color: #4B5563;
+        color: #F9FAFB;
+    }
+}
+
+/* Print styles */
+@media print {
+    .dashboard-header,
+    .dashboard-sidebar,
+    .breadcrumb,
+    .dashboard-footer,
+    .btn,
+    .action-buttons,
+    .no-print {
+        display: none !important;
+    }
+    
+    .dashboard-content {
+        margin-left: 0 !important;
+    }
+    
+    .content-container {
+        padding: 0 !important;
+    }
+    
+    body {
+        background: white !important;
+        color: black !important;
+    }
+}
+
+/* Orientation specific */
+@media (orientation: portrait) {
+    /* Portrait mode specific styles */
+}
+
+@media (orientation: landscape) {
+    /* Landscape mode specific styles */
+}
+
+/* Very small height devices */
+@media (max-height: 600px) {
+    .auth-container {
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+    
+    .auth-header {
+        margin-bottom: 20px;
+    }
+    
+    .auth-features {
+        display: none;
+    }
+}
+
+/* Loading state animations */
+@media (prefers-reduced-motion: no-preference) {
+    .loading-spinner {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+}
+
+/* Grid fallbacks for older browsers */
+@supports not (display: grid) {
+    .stats-grid {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    
+    .stat-card {
+        flex: 1 1 200px;
+        margin: 10px;
+    }
+    
+    .form-grid {
+        display: block;
+    }
+    
+    .form-section {
+        margin-bottom: 30px;
+    }
+}
+
+/* Custom scrollbar for webkit browsers */
+@media (min-width: 768px) {
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: var(--hover-bg);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: var(--border-color);
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--text-secondary);
+    }
+}
