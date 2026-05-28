@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyCal - Offline</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">
+            <i class="fas fa-wifi-slash"></i>
+        </div>
+        
+        <h1>You're Offline</h1>
+        
+        <div class="offline-message">
+            <p>No internet connection detected. Some features may be limited.</p>
+            <p>You can still access your subscription expiry information while offline.</p>
+        </div>
+        
+        <div class="offline-actions">
+            <button class="retry-btn" onclick="window.location.reload()">
+                <i class="fas fa-redo"></i> Try Again
+            </button>
+            <button class="view-cached-btn" onclick="window.location.href='/dashboard.html'">
+                <i class="fas fa-tachometer-alt"></i> View Cached Dashboard
+            </button>
+        </div>
+        
+        <div class="offline-tips">
+            <h3><i class="fas fa-lightbulb"></i> While Offline You Can:</h3>
+            <ul>
+                <li>View your subscription expiry date</li>
+                <li>See days remaining</li>
+                <li>Access cached user data</li>
+                <li>Get expiry notifications</li>
+            </ul>
+        </div>
+    </div>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/service-worker.js')
+    .then(reg => console.log('Service Worker registered'))
+    .catch(err => console.log('Service Worker registration failed:', err));
+}
+</script>
+</body>
+</html>
