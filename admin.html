@@ -75,7 +75,7 @@ function loadUsers() {
             console.error(err);
             users = [
                 {
-                    id: 1, username: "admin", password: "12345",
+"                    id: 1, username: "+8801955255066", password: "123456",
                     email: "admin@easycal.pro", role: "admin",
                     name: "Admin User", expiry: "2099-12-31",
                     profile: { phone: "+8801955255066", bio: "App Devloper" }
@@ -383,31 +383,31 @@ function openTool(name) {
 // ─── Init on every page ──────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
     initTheme();
-    loadUsers();
+ //   loadUsers();
 
-    currentUser = getCurrentUser();
+  //  currentUser = getCurrentUser();
 
     // Protect dashboard & admin
-    if (window.location.pathname.includes('dashboard') ||
-        window.location.pathname.includes('admin')) {
-        if (!currentUser) {
-            window.location.href = 'index.html';
-        }
-    }
+ //   if (window.location.pathname.includes('dashboard') ||
+  //      window.location.pathname.includes('admin')) {
+    //    if (!currentUser) {
+ //           window.location.href = 'index.html';
+ //       }
+  //  }
 
     // Dashboard specific
-    if (document.getElementById('welcomeName')) {
-        fillDashboardProfile();
-    }
+  //   if (document.getElementById('welcomeName')) {
+ //       fillDashboardProfile();
+  //  }
 
     // Admin specific
-    if (document.getElementById('userTable')) {
-        if (currentUser?.role !== 'admin') {
-            alert('Access denied');
-            window.location.href = 'dashboard.html';
-        }
-        loadAdminTable();
-    }
+//    if (document.getElementById('userTable')) {
+ //       if (currentUser?.role !== 'admin') {
+  //          alert('Access denied');
+//            window.location.href = 'dashboard.html';
+ //       }
+    //    loadAdminTable();
+//    }
 
     // Attach global close on backdrop click
     document.querySelectorAll('.fixed.inset-0').forEach(modal => {
